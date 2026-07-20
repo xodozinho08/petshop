@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Área Admin — Xodozinho Pet Shop</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="logo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<!-- ============ TELA DE LOGIN ============ -->
+<div class="tela-login" id="telaLogin">
+  <div class="login-card">
+    <img src="logo.jpg" alt="Xodozinho" class="login-logo">
+    <h1 class="login-titulo">Xodozinho</h1>
+    <p class="login-sub">ÁREA ADMINISTRATIVA</p>
+    <form id="formLogin" autocomplete="off">
+      <label>E-mail
+        <input type="email" id="loginEmail" placeholder="seu@email.com" required>
+      </label>
+      <label>Senha
+        <input type="password" id="loginSenha" placeholder="••••••" required>
+      </label>
+      <p class="login-erro" id="loginErro">E-mail ou senha incorretos.</p>
+      <button type="submit" class="btn-entrar">Entrar</button>
+    </form>
+    <a href="index.html" class="login-voltar">&#8592; Voltar ao site</a>
+  </div>
+</div>
+
+<!-- ============ PAINEL ============ -->
+<div class="painel" id="painel" hidden>
+
+  <header class="painel-topo">
+    <div class="painel-marca">
+      <img src="logo.jpg" alt="Xodozinho">
+      <span>Xodozinho <small>Painel Admin</small></span>
+    </div>
+    <div class="painel-acoes">
+      <a href="index.html" class="topo-link">Ver site</a>
+      <button class="topo-link sair" id="btnSair">Sair</button>
+    </div>
+  </header>
+
+  <nav class="abas" id="abas">
+    <button class="aba ativa" data-aba="dashboard">&#128202; Resumo</button>
+    <button class="aba" data-aba="entradas">&#128181; Entradas</button>
+    <button class="aba" data-aba="saidas">&#128184; Saídas</button>
+    <button class="aba" data-aba="boletos">&#129534; Boletos</button>
+    <button class="aba" data-aba="clientes">&#128062; Clientes</button>
+    <button class="aba" data-aba="pacotes">&#127873; Pacotes</button>
+    <button class="aba" data-aba="fechamentos">&#128197; Fechamentos</button>
+    <button class="aba" data-aba="backup">&#128190; Backup</button>
+  </nav>
+
+  <main class="conteudo">
+
+    <!-- ===== RESUMO ===== -->
+    <section class="painel-secao ativa" id="sec-dashboard">
+      <div class="secao-cab">
+        <h2>Resumo do mês</h2>
+        <input type="month" id="mesResumo">
+      </div>
+      <div class="kpis">
+        <div class="kpi kpi-verde"><span>Total de entradas</span><strong id="kpiEntradas">R$ 0,00</strong></div>
+        <div class="kpi kpi-vermelho"><span>Total de saídas</span><strong id="kpiSaidas">R$ 0,00</strong></div>
+        <div class="kpi kpi-ouro"><span>Boletos em aberto</span><strong id="kpiBoletos">R$ 0,00</strong></div>
+        <div class="kpi kpi-roxo"><span>Saldo do mês</span><strong id="kpiSaldo">R$ 0,00</strong></div>
+      </div>
+      <div class="painel-grid-2">
+        <div class="bloco">
+          <h3>Entradas por forma de pagamento</h3>
+          <div id="graficoFormas" class="grafico-barras"></div>
+        </div>
+        <div class="bloco">
+          <h3>Próximos boletos a vencer</h3>
+          <div id="listaVencimentos" class="lista-simples"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== ENTRADAS ===== -->
+    <section class="painel-secao" id="sec-entradas">
+      <div class="secao-cab">
+        <h2>Lançar entrada</h2>
+        <span class="total-pill" id="totalEntradas">Total: R$ 0,00</span>
+      </div>
+      <form class="form-linha" id="formEntrada">
+        <label>Origem
+          <select id="entOrigem" required>
+            <option value="loja">Loja</option>
+            <option value="bt">Banho e Tosa (bt)</option>
+            <option value="hotel">Hotelzinho</option>
+            <option value="taxi">Táxi Dog</option>
+          </select>
+        </label>
+        <label>Forma de pagamento
+          <select id="entForma" required>
+            <option value="pix">Pix</option>
+            <option value="dinheiro">Dinheiro</option>
+            <option value="debito">Débito</option>
+            <option value="credito">Crédito</option>
+          </select>
+        </label>
+        <label>Valor (R$)
+          <input type="number" id="entValor" step="0.01" min="0.01" placeholder="0,00" required>
+        </label>
+        <label>Data
+          <input type="date" id="entData" required>
+        </label>
+        <button type="submit" class="btn-add">+ Lançar</button>
+      </form>
+      <div class="filtro-mes">
+        <label>Filtrar mês: <input type="month" id="mesEntradas"></label>
+      </div>
+      <div class="tabela-wrap">
+        <table>
+          <thead><tr><th>Descrição</th><th>Valor</th><th>Data</th><th></th></tr></thead>
+          <tbody id="tbodyEntradas"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== SAÍDAS ===== -->
+    <section class="painel-secao" id="sec-saidas">
+      <div class="secao-cab">
+        <h2>Lançar saída / gasto</h2>
+        <span class="total-pill vermelho" id="totalSaidas">Total: R$ 0,00</span>
+      </div>
+      <form class="form-linha" id="formSaida">
+        <label>Descrição
+          <input type="text" id="saiDesc" placeholder="ex: santander, gabriel, internet..." required>
+        </label>
+        <label>Valor (R$)
+          <input type="number" id="saiValor" step="0.01" min="0.01" placeholder="0,00" required>
+        </label>
+        <label>Data
+          <input type="date" id="saiData" required>
+        </label>
+        <label>Status
+          <select id="saiStatus">
+            <option value="PG">PG (pago)</option>
+            <option value="PENDENTE">Pendente</option>
+          </select>
+        </label>
+        <button type="submit" class="btn-add">+ Lançar</button>
+      </form>
+      <div class="filtro-mes">
+        <label>Filtrar mês: <input type="month" id="mesSaidas"></label>
+      </div>
+      <div class="tabela-wrap">
+        <table>
+          <thead><tr><th>Descrição</th><th>Status</th><th>Valor</th><th>Data</th><th></th></tr></thead>
+          <tbody id="tbodySaidas"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== BOLETOS ===== -->
+    <section class="painel-secao" id="sec-boletos">
+      <div class="secao-cab">
+        <h2>Boletos e contas a pagar</h2>
+        <span class="total-pill ouro" id="totalBoletos">Em aberto: R$ 0,00</span>
+      </div>
+      <form class="form-linha" id="formBoleto">
+        <label>Descrição
+          <input type="text" id="bolDesc" placeholder="ex: nubank, sabesp, parcela..." required>
+        </label>
+        <label>Valor (R$)
+          <input type="number" id="bolValor" step="0.01" min="0.01" placeholder="0,00" required>
+        </label>
+        <label>Vencimento
+          <input type="date" id="bolData" required>
+        </label>
+        <button type="submit" class="btn-add">+ Adicionar</button>
+      </form>
+      <div class="tabela-wrap">
+        <table>
+          <thead><tr><th>Descrição</th><th>Status</th><th>Valor</th><th>Vencimento</th><th></th></tr></thead>
+          <tbody id="tbodyBoletos"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== CLIENTES ===== -->
+    <section class="painel-secao" id="sec-clientes">
+      <div class="secao-cab">
+        <h2>Clientes</h2>
+        <span class="total-pill" id="totalClientes">0 cadastrados</span>
+      </div>
+      <form class="form-linha" id="formCliente">
+        <label>Nome do tutor
+          <input type="text" id="cliNome" placeholder="ex: Maria" required>
+        </label>
+        <label>Pet
+          <input type="text" id="cliPet" placeholder="ex: Totó (poodle)" required>
+        </label>
+        <label>WhatsApp
+          <input type="tel" id="cliTel" placeholder="11 99999-9999">
+        </label>
+        <label>Observações
+          <input type="text" id="cliObs" placeholder="ex: alérgico, bravo no secador...">
+        </label>
+        <button type="submit" class="btn-add">+ Cadastrar</button>
+      </form>
+      <div class="filtro-mes">
+        <label>Buscar: <input type="search" id="buscaCliente" placeholder="nome ou pet"></label>
+      </div>
+      <div class="tabela-wrap">
+        <table>
+          <thead><tr><th>Tutor</th><th>Pet</th><th>WhatsApp</th><th>Observações</th><th></th></tr></thead>
+          <tbody id="tbodyClientes"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== PACOTES ===== -->
+    <section class="painel-secao" id="sec-pacotes">
+      <div class="secao-cab">
+        <h2>Pacotes contratados</h2>
+        <span class="total-pill" id="totalPacotes">0 ativos</span>
+      </div>
+      <form class="form-linha" id="formPacote">
+        <label>Cliente / Pet
+          <input type="text" id="pacCliente" placeholder="ex: Maria — Totó" required>
+        </label>
+        <label>Pacote
+          <select id="pacTipo">
+            <option value="4 Banhos">4 Banhos</option>
+            <option value="Banho + Tosa">Banho + Tosa</option>
+            <option value="Personalizado">Personalizado</option>
+          </select>
+        </label>
+        <label>Valor (R$)
+          <input type="number" id="pacValor" step="0.01" min="0" placeholder="0,00" required>
+        </label>
+        <label>Sessões
+          <input type="number" id="pacSessoes" min="1" value="4" required>
+        </label>
+        <button type="submit" class="btn-add">+ Contratar</button>
+      </form>
+      <div class="tabela-wrap">
+        <table>
+          <thead><tr><th>Cliente / Pet</th><th>Pacote</th><th>Valor</th><th>Sessões usadas</th><th></th></tr></thead>
+          <tbody id="tbodyPacotes"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== FECHAMENTOS ===== -->
+    <section class="painel-secao" id="sec-fechamentos">
+      <div class="secao-cab">
+        <h2>Fechamentos mensais</h2>
+        <span class="total-pill">calculado automaticamente</span>
+      </div>
+      <p class="ajuda">Cada linha soma as entradas e saídas lançadas no mês, igual à aba FECHAMENTOS da sua planilha.</p>
+      <div class="tabela-wrap">
+        <table>
+          <thead><tr><th>Mês</th><th>Entradas</th><th>Saídas</th><th>Saldo</th></tr></thead>
+          <tbody id="tbodyFechamentos"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== BACKUP ===== -->
+    <section class="painel-secao" id="sec-backup">
+      <div class="secao-cab"><h2>Backup dos dados</h2></div>
+      <p class="ajuda">Os lançamentos ficam salvos <strong>neste navegador</strong> (celular ou computador onde você lançou). Baixe o backup com frequência para não perder nada e para transferir entre aparelhos.</p>
+      <div class="backup-botoes">
+        <button class="btn-add" id="btnExportarJSON">&#11015; Baixar backup completo (.json)</button>
+        <button class="btn-add secundario" id="btnExportarCSV">&#11015; Exportar lançamentos (.csv p/ Excel)</button>
+        <label class="btn-add secundario btn-importar">
+          &#11014; Restaurar backup (.json)
+          <input type="file" id="inputImportar" accept=".json" hidden>
+        </label>
+        <button class="btn-perigo" id="btnLimparTudo">&#128465; Apagar todos os dados</button>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+========================================
+ XODOZINHO PET SHOP — SITE + PAINEL ADMIN
+========================================
+
+ARQUIVOS
+--------
+index.html ......... site público (serviços, pacotes, mapa, WhatsApp)
+admin.html ......... área de login + painel de fluxo de caixa
+css/style.css ...... estilo do site
+css/admin.css ...... estilo do painel
+js/script.js ....... script do site
+js/admin.js ........ script do painel (lançamentos, fechamentos, backup)
+img/ ............... logos da marca
+
+COMO TESTAR NO COMPUTADOR
+-------------------------
+Basta abrir o arquivo index.html com dois cliques (abre no navegador).
+Para entrar no painel: clique em "Área Admin" e use seu e-mail e senha.
+
+COMO PUBLICAR DE GRAÇA (GitHub Pages, igual ao site de referência)
+------------------------------------------------------------------
+1. Crie uma conta em github.com
+2. Crie um repositório novo chamado, por exemplo: xodozinho
+3. Envie TODOS os arquivos desta pasta (mantendo as pastas css, js, img)
+4. Vá em Settings > Pages > Branch: main > Save
+5. Em alguns minutos o site fica no ar em:
+   https://SEUUSUARIO.github.io/xodozinho/
+
+IMPORTANTE SOBRE O PAINEL
+-------------------------
+- Os lançamentos ficam salvos NO NAVEGADOR do aparelho onde você lançou
+  (celular ou computador). Eles NÃO são compartilhados entre aparelhos
+  automaticamente, porque o site não tem servidor.
+- Use a aba BACKUP para baixar o arquivo .json com frequência.
+  Esse arquivo restaura tudo em outro aparelho (Restaurar backup).
+- A aba Backup também exporta um .csv que abre direto no Excel,
+  no mesmo formato da sua planilha (descrição, status, valor, data).
+- A senha do painel fica no código (js/admin.js). Isso impede acesso
+  casual, mas não é segurança de banco: não guarde dados sigilosos
+  de terceiros ali. Para trocar a senha, edite as duas primeiras
+  linhas de js/admin.js (ADMIN_EMAIL e ADMIN_SENHA).
+
+WHATSAPP
+--------
+Todos os botões do site abrem conversa com o número (11) 98194-4112
+com mensagem pronta conforme o serviço escolhido pelo cliente.

@@ -1,0 +1,158 @@
+/* ============================================================
+   XODOZINHO PET SHOP — painel administrativo
+   ============================================================ */
+:root{
+  --roxo-escuro:#3B1655;
+  --roxo:#4A1D6B;
+  --roxo-suave:#7A4BA8;
+  --ouro:#D4A93C;
+  --ouro-claro:#E8C86A;
+  --ouro-escuro:#A87F1F;
+  --creme:#F7F1E3;
+  --branco:#FFFFFF;
+  --texto:#3A2C4A;
+  --verde:#2E9E5B;
+  --vermelho:#C0392B;
+  --cinza:#EDE7F3;
+  --fonte-script:'Dancing Script',cursive;
+  --fonte-ui:'Nunito Sans',sans-serif;
+  --raio:14px;
+  --sombra:0 8px 24px rgba(59,22,85,.12);
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--fonte-ui);background:var(--creme);color:var(--texto);min-height:100vh}
+button{font-family:inherit;cursor:pointer}
+input,select{font-family:inherit;font-size:.95rem}
+
+/* ---------- Login ---------- */
+.tela-login{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.2rem;
+  background-color:var(--roxo);
+  background-image:
+    linear-gradient(135deg, rgba(255,255,255,.05) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.05) 50%, rgba(255,255,255,.05) 75%, transparent 75%),
+    linear-gradient(45deg, rgba(0,0,0,.10) 25%, transparent 25%, transparent 50%, rgba(0,0,0,.10) 50%, rgba(0,0,0,.10) 75%, transparent 75%);
+  background-size:56px 56px;
+}
+.login-card{background:var(--branco);border-radius:22px;padding:2.4rem 2rem;width:100%;max-width:400px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.4);border-top:5px solid var(--ouro)}
+.login-logo{width:84px;height:84px;border-radius:50%;border:3px solid var(--ouro);margin:0 auto .6rem;object-fit:cover}
+.login-titulo{font-family:var(--fonte-script);font-size:2.6rem;color:var(--roxo);line-height:1}
+.login-sub{letter-spacing:.3em;font-size:.7rem;color:var(--ouro-escuro);font-weight:800;margin:.3rem 0 1.6rem}
+.login-card label{display:block;text-align:left;font-weight:700;font-size:.85rem;margin-bottom:1rem;color:var(--roxo)}
+.login-card input{width:100%;margin-top:.3rem;padding:.75rem .9rem;border:1.5px solid var(--cinza);border-radius:10px;transition:border .2s}
+.login-card input:focus{outline:none;border-color:var(--roxo-suave)}
+.login-erro{display:none;color:var(--vermelho);font-size:.85rem;font-weight:700;margin-bottom:.8rem}
+.login-erro.visivel{display:block}
+.btn-entrar{width:100%;padding:.85rem;border:none;border-radius:999px;font-weight:800;font-size:1rem;color:var(--roxo-escuro);background:linear-gradient(135deg,var(--ouro-claro),var(--ouro));box-shadow:0 6px 16px rgba(212,169,60,.4);transition:transform .2s}
+.btn-entrar:hover{transform:translateY(-2px)}
+.login-voltar{display:inline-block;margin-top:1.2rem;color:var(--roxo-suave);font-size:.88rem;font-weight:700;text-decoration:none}
+.login-voltar:hover{text-decoration:underline}
+
+/* ---------- Topo do painel ---------- */
+.painel-topo{background:var(--roxo-escuro);color:var(--creme);display:flex;align-items:center;justify-content:space-between;padding:.6rem 1.2rem;position:sticky;top:0;z-index:50}
+.painel-marca{display:flex;align-items:center;gap:.6rem}
+.painel-marca img{width:40px;height:40px;border-radius:50%;border:2px solid var(--ouro)}
+.painel-marca span{font-family:var(--fonte-script);font-size:1.5rem;color:var(--ouro-claro);font-weight:700}
+.painel-marca small{font-family:var(--fonte-ui);font-size:.65rem;letter-spacing:.2em;color:var(--creme);display:block;margin-top:-.35rem}
+.painel-acoes{display:flex;gap:.8rem;align-items:center}
+.topo-link{background:none;border:1.5px solid rgba(232,200,106,.6);color:var(--ouro-claro);border-radius:999px;padding:.35rem 1rem;font-weight:700;font-size:.85rem;text-decoration:none}
+.topo-link:hover{background:rgba(212,169,60,.15)}
+.topo-link.sair{border-color:rgba(255,255,255,.3);color:var(--creme)}
+
+/* ---------- Abas ---------- */
+.abas{display:flex;gap:.4rem;overflow-x:auto;padding:.8rem 1.2rem;background:var(--branco);box-shadow:0 2px 8px rgba(59,22,85,.08);position:sticky;top:56px;z-index:40;-webkit-overflow-scrolling:touch}
+.aba{flex-shrink:0;border:none;background:var(--cinza);color:var(--roxo);font-weight:700;font-size:.88rem;padding:.55rem 1.1rem;border-radius:999px;transition:background .2s,color .2s}
+.aba:hover{background:#e0d5ee}
+.aba.ativa{background:var(--roxo);color:var(--ouro-claro)}
+
+/* ---------- Conteúdo ---------- */
+.conteudo{max-width:1150px;margin:0 auto;padding:1.6rem 1.2rem 4rem}
+.painel-secao{display:none}
+.painel-secao.ativa{display:block;animation:aparecer .25s ease}
+@keyframes aparecer{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.secao-cab{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1.2rem}
+.secao-cab h2{font-family:var(--fonte-script);font-size:2rem;color:var(--roxo)}
+.secao-cab input[type="month"]{padding:.5rem .7rem;border:1.5px solid var(--cinza);border-radius:10px;background:var(--branco)}
+.total-pill{background:var(--verde);color:#fff;font-weight:800;font-size:.85rem;padding:.4rem 1rem;border-radius:999px}
+.total-pill.vermelho{background:var(--vermelho)}
+.total-pill.ouro{background:var(--ouro-escuro)}
+.ajuda{font-size:.9rem;color:#6b5a80;margin-bottom:1rem}
+
+/* ---------- KPIs ---------- */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:1.6rem}
+.kpi{background:var(--branco);border-radius:var(--raio);padding:1.2rem 1.3rem;box-shadow:var(--sombra);border-left:5px solid var(--roxo)}
+.kpi span{display:block;font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#8a7a9e;margin-bottom:.3rem}
+.kpi strong{font-size:1.5rem;color:var(--roxo)}
+.kpi-verde{border-left-color:var(--verde)}.kpi-verde strong{color:var(--verde)}
+.kpi-vermelho{border-left-color:var(--vermelho)}.kpi-vermelho strong{color:var(--vermelho)}
+.kpi-ouro{border-left-color:var(--ouro)}.kpi-ouro strong{color:var(--ouro-escuro)}
+.kpi-roxo{border-left-color:var(--roxo-suave)}
+
+.painel-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem}
+.bloco{background:var(--branco);border-radius:var(--raio);padding:1.3rem;box-shadow:var(--sombra)}
+.bloco h3{font-size:1rem;color:var(--roxo);margin-bottom:1rem}
+
+/* Gráfico de barras simples */
+.grafico-barras{display:flex;flex-direction:column;gap:.7rem}
+.barra-linha{display:grid;grid-template-columns:80px 1fr 90px;align-items:center;gap:.6rem;font-size:.85rem}
+.barra-nome{font-weight:800;color:var(--roxo);text-transform:capitalize}
+.barra-trilha{background:var(--cinza);border-radius:999px;height:14px;overflow:hidden}
+.barra-preench{height:100%;background:linear-gradient(90deg,var(--roxo-suave),var(--roxo));border-radius:999px;min-width:2px;transition:width .4s}
+.barra-valor{text-align:right;font-weight:700}
+
+.lista-simples{display:flex;flex-direction:column;gap:.5rem;font-size:.9rem}
+.lista-simples .item{display:flex;justify-content:space-between;gap:.8rem;padding:.5rem .7rem;background:var(--creme);border-radius:8px}
+.lista-simples .venc-perto{border-left:4px solid var(--vermelho)}
+.lista-simples .vazio{color:#8a7a9e;font-style:italic}
+
+/* ---------- Formulários de lançamento ---------- */
+.form-linha{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.8rem;align-items:end;background:var(--branco);border-radius:var(--raio);padding:1.2rem;box-shadow:var(--sombra);margin-bottom:1.2rem}
+.form-linha label{font-size:.8rem;font-weight:800;color:var(--roxo);display:flex;flex-direction:column;gap:.3rem}
+.form-linha input,.form-linha select{padding:.65rem .8rem;border:1.5px solid var(--cinza);border-radius:10px;background:#fff}
+.form-linha input:focus,.form-linha select:focus{outline:none;border-color:var(--roxo-suave)}
+.btn-add{border:none;background:var(--roxo);color:var(--ouro-claro);font-weight:800;padding:.7rem 1.3rem;border-radius:999px;transition:transform .15s,background .2s}
+.btn-add:hover{transform:translateY(-2px);background:var(--roxo-escuro)}
+.btn-add.secundario{background:var(--ouro-escuro);color:#fff}
+.btn-perigo{border:none;background:#fff;border:1.5px solid var(--vermelho);color:var(--vermelho);font-weight:800;padding:.7rem 1.3rem;border-radius:999px}
+.btn-perigo:hover{background:var(--vermelho);color:#fff}
+
+.filtro-mes{margin-bottom:.8rem;font-size:.9rem;font-weight:700;color:var(--roxo)}
+.filtro-mes input{margin-left:.4rem;padding:.45rem .6rem;border:1.5px solid var(--cinza);border-radius:8px;background:#fff}
+
+/* ---------- Tabelas ---------- */
+.tabela-wrap{background:var(--branco);border-radius:var(--raio);box-shadow:var(--sombra);overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.92rem;min-width:520px}
+thead th{background:var(--roxo);color:var(--ouro-claro);text-align:left;padding:.7rem .9rem;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em}
+tbody td{padding:.65rem .9rem;border-bottom:1px solid var(--cinza)}
+tbody tr:hover{background:#faf6ff}
+.valor-pos{color:var(--verde);font-weight:800}
+.valor-neg{color:var(--vermelho);font-weight:800}
+.tag{display:inline-block;font-size:.72rem;font-weight:800;padding:.15rem .6rem;border-radius:999px}
+.tag-pg{background:#DFF3E7;color:var(--verde)}
+.tag-aberto{background:#FBEAE7;color:var(--vermelho)}
+.tag-pend{background:#FCF3D9;color:var(--ouro-escuro)}
+.acao{border:none;background:none;font-size:1rem;padding:.2rem .4rem;border-radius:6px}
+.acao:hover{background:var(--cinza)}
+.linha-vazia td{text-align:center;color:#8a7a9e;font-style:italic;padding:1.4rem}
+.link-zap{color:var(--verde);font-weight:800;text-decoration:none}
+.link-zap:hover{text-decoration:underline}
+.saldo-pos{font-weight:800;color:var(--verde)}
+.saldo-neg{font-weight:800;color:var(--vermelho)}
+
+/* Sessões do pacote */
+.sessoes{display:inline-flex;align-items:center;gap:.5rem}
+.bolinha{width:12px;height:12px;border-radius:50%;background:var(--cinza);display:inline-block}
+.bolinha.usada{background:var(--roxo-suave)}
+.btn-sessao{border:1.5px solid var(--roxo-suave);color:var(--roxo);background:none;border-radius:999px;font-size:.72rem;font-weight:800;padding:.15rem .6rem}
+.btn-sessao:hover{background:var(--roxo);color:var(--ouro-claro)}
+.pacote-completo{color:var(--verde);font-weight:800;font-size:.8rem}
+
+/* ---------- Backup ---------- */
+.backup-botoes{display:flex;flex-direction:column;gap:.8rem;max-width:420px}
+.btn-importar{text-align:center}
+
+@media (max-width:800px){
+  .painel-grid-2{grid-template-columns:1fr}
+  .abas{top:52px}
+}
