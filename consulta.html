@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agendar Consulta — Xodozinho Pet Shop</title>
+<link rel="icon" href="logo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --roxo-escuro:#3B1655; --roxo:#4A1D6B; --roxo-suave:#7A4BA8;
+  --ouro:#D4A93C; --ouro-claro:#E8C86A; --ouro-escuro:#A87F1F;
+  --creme:#F7F1E3; --cinza:#EDE7F3; --verde:#2E9E5B; --vermelho:#C0392B;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Nunito Sans',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.2rem;
+  background-color:var(--roxo);
+  background-image:
+    linear-gradient(135deg, rgba(255,255,255,.05) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.05) 50%, rgba(255,255,255,.05) 75%, transparent 75%),
+    linear-gradient(45deg, rgba(0,0,0,.10) 25%, transparent 25%, transparent 50%, rgba(0,0,0,.10) 50%, rgba(0,0,0,.10) 75%, transparent 75%);
+  background-size:56px 56px;
+}
+.cartao{background:#fff;border-radius:22px;padding:2.2rem 1.8rem;width:100%;max-width:460px;box-shadow:0 20px 60px rgba(0,0,0,.4);border-top:5px solid var(--ouro)}
+.cartao-logo{width:78px;height:78px;border-radius:50%;border:3px solid var(--ouro);margin:0 auto .5rem;display:block;object-fit:cover}
+h1{font-family:'Dancing Script',cursive;font-size:2.4rem;color:var(--roxo);text-align:center;line-height:1}
+.sub{letter-spacing:.25em;font-size:.68rem;color:var(--ouro-escuro);font-weight:800;text-align:center;margin:.3rem 0 1.2rem}
+.dias-aviso{background:var(--creme);border-left:4px solid var(--ouro);border-radius:10px;padding:.8rem 1rem;font-size:.9rem;color:var(--roxo);margin-bottom:1.2rem}
+.dias-aviso strong{display:block;margin-bottom:.2rem}
+label{display:block;font-weight:800;font-size:.85rem;color:var(--roxo);margin-bottom:.9rem}
+input{width:100%;margin-top:.3rem;padding:.7rem .9rem;border:1.5px solid var(--cinza);border-radius:10px;font-family:inherit;font-size:.95rem}
+input:focus{outline:none;border-color:var(--roxo-suave)}
+.erro-data{display:none;color:var(--vermelho);font-size:.82rem;font-weight:700;margin-top:.3rem}
+.erro-data.visivel{display:block}
+.btn{width:100%;padding:.9rem;border:none;border-radius:999px;font-weight:800;font-size:1rem;cursor:pointer;color:#fff;background:#25D366;box-shadow:0 6px 16px rgba(37,211,102,.4);transition:transform .2s;font-family:inherit}
+.btn:hover{transform:translateY(-2px)}
+.voltar{display:block;text-align:center;margin-top:1.1rem;color:var(--roxo-suave);font-size:.88rem;font-weight:700;text-decoration:none}
+.voltar:hover{text-decoration:underline}
+.nota{font-size:.78rem;color:#8a7a9e;text-align:center;margin-top:.9rem}
+</style>
+</head>
+<body>
+
+<div class="cartao">
+  <img src="logo.jpg" alt="Xodozinho" class="cartao-logo">
+  <h1>Agendar Consulta</h1>
+  <p class="sub">VETERINÁRIA — XODOZINHO PET SHOP</p>
+
+  <div class="dias-aviso" id="diasAviso">
+    <strong>&#128197; Dias de atendimento:</strong>
+    <span id="diasTexto">consulte a disponibilidade</span>
+    <span id="obsTexto"></span>
+  </div>
+
+  <form id="formAgendar">
+    <label>Seu nome
+      <input type="text" id="agNome" placeholder="ex: Maria" required>
+    </label>
+    <label>Nome do pet
+      <input type="text" id="agPet" placeholder="ex: Totó (poodle)" required>
+    </label>
+    <label>Data desejada
+      <input type="date" id="agData" required>
+      <span class="erro-data" id="erroData">A vet não atende nesse dia — escolha um dos dias de atendimento. &#128062;</span>
+    </label>
+    <label>Horário desejado
+      <input type="time" id="agHora" required>
+    </label>
+    <label>Motivo da consulta
+      <input type="text" id="agMotivo" placeholder="ex: vacina, consulta de rotina...">
+    </label>
+    <button type="submit" class="btn">&#128172; Enviar pedido pelo WhatsApp</button>
+  </form>
+
+  <p class="nota">Seu pedido vai direto para o WhatsApp da veterinária, que confirma o horário conforme a agenda do dia.</p>
+  <a class="voltar" href="index.html">&#8592; Voltar ao site</a>
+</div>
+
+<script>
+// ===== Agendamento de consulta — Xodozinho Pet Shop =====
+const VET_WHATS = '5511912576138';
+
+// Dias permitidos vêm do link gerado no painel (?dias=seg,ter&obs=...)
+const params = new URLSearchParams(location.search);
+const NOMES = { seg:'Segunda', ter:'Terça', qua:'Quarta', qui:'Quinta', sex:'Sexta', sab:'Sábado', dom:'Domingo' };
+// getDay(): 0=dom, 1=seg, ... 6=sab
+const INDICE = { dom:0, seg:1, ter:2, qua:3, qui:4, sex:5, sab:6 };
+
+const diasParam = (params.get('dias') || '').split(',').map(d => d.trim()).filter(d => NOMES[d]);
+const diasPermitidos = diasParam.length ? diasParam : ['seg','ter','qua','qui','sex','sab'];
+const obs = params.get('obs') || '';
+
+document.getElementById('diasTexto').textContent = diasPermitidos.map(d => NOMES[d]).join(', ');
+if (obs) document.getElementById('obsTexto').textContent = ' — ' + obs;
+
+// Data mínima = hoje
+const campoData = document.getElementById('agData');
+const hoje = new Date();
+campoData.min = `${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,'0')}-${String(hoje.getDate()).padStart(2,'0')}`;
+
+const indicesPermitidos = diasPermitidos.map(d => INDICE[d]);
+
+function diaValido(iso) {
+  if (!iso) return false;
+  const [a, m, d] = iso.split('-').map(Number);
+  const diaSemana = new Date(a, m - 1, d).getDay();
+  return indicesPermitidos.includes(diaSemana);
+}
+
+campoData.addEventListener('change', () => {
+  document.getElementById('erroData').classList.toggle('visivel', !diaValido(campoData.value));
+});
+
+document.getElementById('formAgendar').addEventListener('submit', (e) => {
+  e.preventDefault();
+  if (!diaValido(campoData.value)) {
+    document.getElementById('erroData').classList.add('visivel');
+    campoData.focus();
+    return;
+  }
+  const [a, m, d] = campoData.value.split('-');
+  const dataBR = `${d}/${m}/${a}`;
+  const texto =
+    `\u{1F43E} *Pedido de consulta \u2014 Xodozinho Pet Shop*\n\n` +
+    `Tutor: ${document.getElementById('agNome').value.trim()}\n` +
+    `Pet: ${document.getElementById('agPet').value.trim()}\n` +
+    `Data: ${dataBR}\n` +
+    `Hor\u00e1rio: ${document.getElementById('agHora').value}\n` +
+    (document.getElementById('agMotivo').value.trim() ? `Motivo: ${document.getElementById('agMotivo').value.trim()}\n` : '') +
+    `\nAguardo a confirma\u00e7\u00e3o! \u{1F49C}`;
+  window.open(`https://wa.me/${VET_WHATS}?text=${encodeURIComponent(texto)}`, '_blank');
+});
+</script>
+</body>
+</html>

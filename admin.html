@@ -52,6 +52,7 @@
     <button class="aba" data-aba="entradas">&#128181; Entradas</button>
     <button class="aba" data-aba="saidas">&#128184; Saídas</button>
     <button class="aba" data-aba="boletos">&#129534; Boletos</button>
+    <button class="aba" data-aba="banhos">&#128703; Banhos</button>
     <button class="aba" data-aba="consultas">&#129658; Consultas</button>
     <button class="aba" data-aba="clientes">&#128062; Clientes</button>
     <button class="aba" data-aba="pacotes">&#127873; Pacotes</button>
@@ -188,6 +189,41 @@
       </div>
     </section>
 
+    <!-- ===== BANHOS ===== -->
+    <section class="painel-secao" id="sec-banhos">
+      <div class="secao-cab">
+        <h2>Registro de banhos</h2>
+        <span class="total-pill" id="totalBanhos">0 no mês</span>
+      </div>
+      <form class="form-linha" id="formBanho">
+        <label>Tutor / Pet
+          <input type="text" id="banCliente" placeholder="ex: Maria — Totó" required>
+        </label>
+        <label>Tipo
+          <select id="banPacote">
+            <option value="">Avulso (fora de pacote)</option>
+          </select>
+        </label>
+        <label>Data
+          <input type="date" id="banData" required>
+        </label>
+        <label>Observação
+          <input type="text" id="banObs" placeholder="ex: banho + tosa higiênica">
+        </label>
+        <button type="submit" class="btn-add">+ Registrar banho</button>
+      </form>
+      <p class="ajuda">Se escolher um pacote, o banho é descontado das sessões automaticamente e a data fica registrada no histórico do pacote.</p>
+      <div class="filtro-mes">
+        <label>Filtrar mês: <input type="month" id="mesBanhos"></label>
+      </div>
+      <div class="tabela-wrap">
+        <table>
+          <thead><tr><th>Data</th><th>Tutor / Pet</th><th>Tipo</th><th>Observação</th><th></th></tr></thead>
+          <tbody id="tbodyBanhos"></tbody>
+        </table>
+      </div>
+    </section>
+
     <!-- ===== CONSULTAS VETERINÁRIAS ===== -->
     <section class="painel-secao" id="sec-consultas">
       <div class="secao-cab">
@@ -211,6 +247,13 @@
         </label>
         <button class="btn-add" id="btnSalvarDias">Salvar dias</button>
         <span class="salvo-ok" id="diasSalvos" hidden>&#10003; salvo!</span>
+        <div class="link-agenda">
+          <label>&#128279; Link de agendamento para enviar aos clientes (só mostra os dias marcados):</label>
+          <div class="link-agenda-row">
+            <input type="text" id="linkAgenda" readonly>
+            <button type="button" class="btn-add secundario" id="btnCopiarLink">Copiar</button>
+          </div>
+        </div>
       </div>
 
       <form class="form-linha" id="formConsulta">
