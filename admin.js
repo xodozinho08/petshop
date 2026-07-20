@@ -80,7 +80,7 @@ function carregarDados() {
     const bruto = localStorage.getItem(CHAVE_DADOS);
     if (bruto) return JSON.parse(bruto);
   } catch (e) { console.error('Erro ao ler dados', e); }
-  return { entradas: [], saidas: [], boletos: [], clientes: [], pacotes: [], consultas: [], banhos: [], diasVet: { dias: [], obs: '' } };
+  return { entradas: [], saidas: [], boletos: [], clientes: [], pacotes: [], consultas: [], banhos: [], pedidosBanho: [], diasVet: { dias: [], obs: '', horarios: '' }, agendaBanho: { diasBanho: [], diasTosa: [], horarios: '', obs: '' } };
 }
 
 let dados = carregarDados();
@@ -402,6 +402,11 @@ document.getElementById('banPacote').addEventListener('change', (e) => {
 
 function renderizarBanhos() {
   if (!dados.banhos) dados.banhos = [];
+  if (!dados.agendaBanho) dados.agendaBanho = { diasBanho: [], diasTosa: [], horarios: '', obs: '' };
+  document.querySelectorAll('#diasBanhoCfg input').forEach(c => { c.checked = dados.agendaBanho.diasBanho.includes(c.value); });
+  document.querySelectorAll('#diasTosaCfg input').forEach(c => { c.checked = dados.agendaBanho.diasTosa.includes(c.value); });
+  document.getElementById('horariosBanhoCfg').value = dados.agendaBanho.horarios || '';
+  document.getElementById('obsBanhoCfg').value = dados.agendaBanho.obs || '';
 
   // Select de pacotes ativos
   const sel = document.getElementById('banPacote');
@@ -437,6 +442,57 @@ function renderizarBanhos() {
   }).join('');
 }
 
+// ---------- PEDIDOS DE BANHO ----------
+const formPedido = document.getElementById('formPedido');
+document.getElementById('pedData').value = hojeISO();
+
+formPedido.addEventListener('submit', (e) => {
+  e.preventDefault();
+  if (!dados.pedidosBanho) dados.pedidosBanho = [];
+  dados.pedidosBanho.push({
+    id: novoId(),
+    cliente: document.getElementById('pedCliente').value.trim(),
+    tel: document.getElementById('pedTel').value.trim(),
+    servico: document.getElementById('pedServico').value,
+    data: document.getElementById('pedData').value,
+    hora: document.getElementById('pedHora').value,
+    valor: 0,
+    status: 'PENDENTE'
+  });
+  salvar();
+  formPedido.reset();
+  document.getElementById('pedData').value = hojeISO();
+  renderizarPedidos();
+});
+
+function renderizarPedidos() {
+  if (!dados.pedidosBanho) dados.pedidosBanho = [];
+  const tbody = document.getElementById('tbodyPedidos');
+  const lista = [...dados.pedidosBanho].sort((a, b) => (a.data + a.hora).localeCompare(b.data + b.hora));
+  if (!lista.length) {
+    tbody.innerHTML = '<tr class="linha-vazia"><td colspan="7">Nenhum pedido registrado. Quando chegar um pedido no WhatsApp, registre aqui para aprovar. &#128703;</td></tr>';
+    return;
+  }
+  tbody.innerHTML = lista.map(p => {
+    const tag = p.status === 'APROVADO' ? 'tag-pg' : (p.status === 'RECUSADO' ? 'tag-aberto' : 'tag-pend');
+    return `
+    <tr>
+      <td><strong>${dataBR(p.data)}</strong></td>
+      <td>${p.hora}</td>
+      <td>${p.cliente}</td>
+      <td>${p.servico}</td>
+      <td>${p.valor ? real(p.valor) : '\u2014'}</td>
+      <td><span class="tag ${tag}">${p.status}</span></td>
+      <td>
+        ${p.status === 'PENDENTE' ? `<button class="acao" data-aprovar-pedido="${p.id}" title="Aprovar e informar valor">&#9989;</button>
+        <button class="acao" data-recusar-pedido="${p.id}" title="Recusar">&#128683;</button>` : ''}
+        ${p.status === 'APROVADO' ? `<button class="acao" data-zap-pedido="${p.id}" title="Enviar confirma\u00e7\u00e3o no WhatsApp">&#128241;</button>` : ''}
+        <button class="acao" data-del-pedido="${p.id}" title="Excluir">&#10060;</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
 // ---------- CONSULTAS VETERINÁRIAS ----------
 const formConsulta = document.getElementById('formConsulta');
 document.getElementById('conData').value = hojeISO();
@@ -444,7 +500,7 @@ document.getElementById('conData').value = hojeISO();
 // Salvar dias de atendimento
 document.getElementById('btnSalvarDias').addEventListener('click', () => {
   const marcados = [...document.querySelectorAll('#diasSemana input:checked')].map(c => c.value);
-  dados.diasVet = { dias: marcados, obs: document.getElementById('obsVet').value.trim() };
+  dados.diasVet = { dias: marcados, obs: document.getElementById('obsVet').value.trim(), horarios: document.getElementById('horariosVet').value.trim() };
   salvar();
   const ok = document.getElementById('diasSalvos');
   ok.hidden = false;
@@ -453,16 +509,69 @@ document.getElementById('btnSalvarDias').addEventListener('click', () => {
 });
 
 function atualizarLinkAgenda() {
-  const base = location.href.replace(/admin\.html.*$/, 'consulta.html');
-  const dias = (dados.diasVet && dados.diasVet.dias.length) ? dados.diasVet.dias.join(',') : '';
-  const obs = (dados.diasVet && dados.diasVet.obs) ? dados.diasVet.obs : '';
-  let link = base;
-  const params = [];
-  if (dias) params.push('dias=' + dias);
-  if (obs) params.push('obs=' + encodeURIComponent(obs));
-  if (params.length) link += '?' + params.join('&');
-  document.getElementById('linkAgenda').value = link;
+  document.getElementById('linkAgenda').value = location.href.replace(/admin\.html.*$/, 'consulta.html');
+  document.getElementById('linkBanho').value = location.href.replace(/admin\.html.*$/, 'agendar-banho.html');
 }
+
+// ---------- PUBLICAR AGENDA (gera o config.js) ----------
+function listaHorarios(texto, padrao) {
+  const lista = (texto || '').split(',').map(x => x.trim()).filter(Boolean);
+  return lista.length ? lista : padrao;
+}
+
+function gerarConfigJS() {
+  const ab = dados.agendaBanho || { diasBanho: [], diasTosa: [], horarios: '', obs: '' };
+  const dv = dados.diasVet || { dias: [], obs: '', horarios: '' };
+  const cfg = {
+    banho: {
+      dias: ab.diasBanho.length ? ab.diasBanho : ['ter','qua','qui','sex','sab'],
+      horarios: listaHorarios(ab.horarios, ['09:00','10:00','11:00','14:00','15:00','16:00']),
+      obs: ab.obs || ''
+    },
+    tosa: { dias: ab.diasTosa.length ? ab.diasTosa : ['ter','qua','qui','sex'] },
+    consulta: {
+      dias: dv.dias.length ? dv.dias : ['ter','qua','qui','sex'],
+      horarios: listaHorarios(dv.horarios, ['10:00','11:00','14:00','15:00']),
+      obs: dv.obs || ''
+    }
+  };
+  return '// AGENDA PUBLICA - gerada pelo painel Xodozinho\n' +
+         'window.XODO_CONFIG = ' + JSON.stringify(cfg, null, 2) + ';\n';
+}
+
+function publicarAgenda(idAviso) {
+  const texto = gerarConfigJS();
+  navigator.clipboard.writeText(texto).catch(() => {});
+  const ok = document.getElementById(idAviso);
+  ok.hidden = false;
+  setTimeout(() => { ok.hidden = true; }, 6000);
+  window.open('https://github.com/xodozinho08/petshop/edit/main/config.js', '_blank');
+}
+
+document.getElementById('btnPublicarAgendaVet').addEventListener('click', () => {
+  // Garante que os dias marcados estejam salvos antes de publicar
+  const marcados = [...document.querySelectorAll('#diasSemana input:checked')].map(c => c.value);
+  dados.diasVet = { dias: marcados, obs: document.getElementById('obsVet').value.trim(), horarios: document.getElementById('horariosVet').value.trim() };
+  salvar();
+  publicarAgenda('diasSalvos');
+});
+
+document.getElementById('btnPublicarAgenda').addEventListener('click', () => {
+  dados.agendaBanho = {
+    diasBanho: [...document.querySelectorAll('#diasBanhoCfg input:checked')].map(c => c.value),
+    diasTosa: [...document.querySelectorAll('#diasTosaCfg input:checked')].map(c => c.value),
+    horarios: document.getElementById('horariosBanhoCfg').value.trim(),
+    obs: document.getElementById('obsBanhoCfg').value.trim()
+  };
+  salvar();
+  publicarAgenda('agendaSalva');
+});
+
+document.getElementById('btnCopiarLinkBanho').addEventListener('click', () => {
+  const campo = document.getElementById('linkBanho');
+  campo.select();
+  navigator.clipboard.writeText(campo.value);
+});
 
 document.getElementById('btnCopiarLink').addEventListener('click', () => {
   const campo = document.getElementById('linkAgenda');
@@ -500,6 +609,7 @@ function renderizarConsultas() {
     c.checked = dados.diasVet.dias.includes(c.value);
   });
   document.getElementById('obsVet').value = dados.diasVet.obs || '';
+  document.getElementById('horariosVet').value = dados.diasVet.horarios || '';
   atualizarLinkAgenda();
 
   const tbody = document.getElementById('tbodyConsultas');
@@ -530,6 +640,18 @@ function renderizarConsultas() {
       <td><button class="acao" data-del-consulta="${c.id}" title="Excluir">&#10060;</button></td>
     </tr>`;
   }).join('');
+}
+
+function enviarConfirmacaoPedido(p) {
+  const texto =
+    `\u{1F43E} *Xodozinho Pet Shop \u2014 Agendamento aprovado!*%0A%0A` +
+    `Servi\u00e7o: ${encodeURIComponent(p.servico)}%0A` +
+    `Data: ${encodeURIComponent(dataBR(p.data))} \u00e0s ${encodeURIComponent(p.hora)}%0A` +
+    `Valor: ${encodeURIComponent(real(p.valor))}%0A%0A` +
+    `Te esperamos! \u{1F49C}`;
+  const numero = (p.tel || '').replace(/\D/g, '');
+  const url = numero ? `https://wa.me/55${numero}?text=${texto}` : `https://wa.me/?text=${texto}`;
+  window.open(url, '_blank');
 }
 
 // ---------- RESUMO (DASHBOARD) ----------
@@ -643,6 +765,24 @@ document.querySelector('.conteudo').addEventListener('click', (e) => {
       if (p && p.usadas > 0) p.usadas--;
     }
     dados.banhos = dados.banhos.filter(x => x.id !== d.delBanho);
+  } else if (d.aprovarPedido) {
+    const p = dados.pedidosBanho.find(x => x.id === d.aprovarPedido);
+    if (p) {
+      const valor = parseFloat((prompt('Valor do servi\u00e7o (R$):', '') || '').replace(',', '.'));
+      if (!isNaN(valor) && valor > 0) {
+        p.valor = valor;
+        p.status = 'APROVADO';
+        enviarConfirmacaoPedido(p);
+      }
+    }
+  } else if (d.recusarPedido) {
+    const p = dados.pedidosBanho.find(x => x.id === d.recusarPedido);
+    if (p && confirm('Marcar este pedido como recusado?')) p.status = 'RECUSADO';
+  } else if (d.zapPedido) {
+    const p = dados.pedidosBanho.find(x => x.id === d.zapPedido);
+    if (p) enviarConfirmacaoPedido(p);
+  } else if (d.delPedido && confirm('Excluir este pedido?')) {
+    dados.pedidosBanho = dados.pedidosBanho.filter(x => x.id !== d.delPedido);
   } else if (d.statusPacote) {
     const p = dados.pacotes.find(x => x.id === d.statusPacote);
     if (p) {
@@ -698,7 +838,9 @@ document.getElementById('inputImportar').addEventListener('change', (e) => {
           pacotes: novo.pacotes || [],
           consultas: novo.consultas || [],
           banhos: novo.banhos || [],
-          diasVet: novo.diasVet || { dias: [], obs: '' }
+          pedidosBanho: novo.pedidosBanho || [],
+          diasVet: novo.diasVet || { dias: [], obs: '', horarios: '' },
+          agendaBanho: novo.agendaBanho || { diasBanho: [], diasTosa: [], horarios: '', obs: '' }
         };
         salvar();
         renderizarTudo();
@@ -715,7 +857,7 @@ document.getElementById('inputImportar').addEventListener('change', (e) => {
 document.getElementById('btnLimparTudo').addEventListener('click', () => {
   if (confirm('Tem certeza? TODOS os lançamentos, clientes e pacotes serão apagados.') &&
       confirm('Última confirmação: essa ação não pode ser desfeita. Baixou o backup?')) {
-    dados = { entradas: [], saidas: [], boletos: [], clientes: [], pacotes: [], consultas: [], banhos: [], diasVet: { dias: [], obs: '' } };
+    dados = { entradas: [], saidas: [], boletos: [], clientes: [], pacotes: [], consultas: [], banhos: [], pedidosBanho: [], diasVet: { dias: [], obs: '', horarios: '' }, agendaBanho: { diasBanho: [], diasTosa: [], horarios: '', obs: '' } };
     salvar();
     renderizarTudo();
   }
@@ -739,6 +881,7 @@ function renderizarTudo() {
   renderizarClientes();
   renderizarPacotes();
   renderizarBanhos();
+  renderizarPedidos();
   renderizarConsultas();
   renderizarFechamentos();
 }

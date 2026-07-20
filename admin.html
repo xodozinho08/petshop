@@ -97,7 +97,6 @@
           <select id="entOrigem" required>
             <option value="loja">Loja</option>
             <option value="bt">Banho e Tosa (bt)</option>
-            <option value="hotel">Hotelzinho</option>
             <option value="taxi">Táxi Dog</option>
           </select>
         </label>
@@ -192,9 +191,83 @@
     <!-- ===== BANHOS ===== -->
     <section class="painel-secao" id="sec-banhos">
       <div class="secao-cab">
-        <h2>Registro de banhos</h2>
+        <h2>Banhos</h2>
         <span class="total-pill" id="totalBanhos">0 no mês</span>
       </div>
+
+      <div class="bloco" style="margin-bottom:1.2rem">
+        <h3>&#128197; Agenda pública de banhos (o que o cliente vê no link)</h3>
+        <p class="ajuda">Dias com agenda de <strong>banho</strong>:</p>
+        <div class="dias-semana" id="diasBanhoCfg">
+          <label><input type="checkbox" value="seg"> Segunda</label>
+          <label><input type="checkbox" value="ter"> Terça</label>
+          <label><input type="checkbox" value="qua"> Quarta</label>
+          <label><input type="checkbox" value="qui"> Quinta</label>
+          <label><input type="checkbox" value="sex"> Sexta</label>
+          <label><input type="checkbox" value="sab"> Sábado</label>
+        </div>
+        <p class="ajuda">Dias com agenda de <strong>tosa</strong>:</p>
+        <div class="dias-semana" id="diasTosaCfg">
+          <label><input type="checkbox" value="seg"> Segunda</label>
+          <label><input type="checkbox" value="ter"> Terça</label>
+          <label><input type="checkbox" value="qua"> Quarta</label>
+          <label><input type="checkbox" value="qui"> Quinta</label>
+          <label><input type="checkbox" value="sex"> Sexta</label>
+          <label><input type="checkbox" value="sab"> Sábado</label>
+        </div>
+        <label class="obs-vet">Horários disponíveis (separados por vírgula)
+          <input type="text" id="horariosBanhoCfg" placeholder="ex: 09:00, 10:00, 11:00, 14:00">
+        </label>
+        <label class="obs-vet">Observação na página
+          <input type="text" id="obsBanhoCfg" placeholder="ex: agenda sujeita à confirmação">
+        </label>
+        <button class="btn-add" id="btnPublicarAgenda">&#128228; Publicar agenda no site</button>
+        <span class="salvo-ok" id="agendaSalva" hidden>&#10003; copiado! Cole no GitHub.</span>
+        <p class="ajuda" style="margin-top:.6rem">Ao clicar: a configuração é copiada e o GitHub abre no arquivo certo — apague tudo, cole (Ctrl+V) e clique em <strong>Commit changes</strong>. O link dos clientes continua o mesmo para sempre.</p>
+        <div class="link-agenda">
+          <label>&#128279; Link fixo de agendamento de banho:</label>
+          <div class="link-agenda-row">
+            <input type="text" id="linkBanho" readonly>
+            <button type="button" class="btn-add secundario" id="btnCopiarLinkBanho">Copiar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="bloco" style="margin-bottom:1.2rem">
+        <h3>&#128203; Pedidos de agendamento (chegam pelo WhatsApp)</h3>
+        <form class="form-linha" id="formPedido">
+          <label>Tutor / Pet
+            <input type="text" id="pedCliente" placeholder="ex: Maria — Totó" required>
+          </label>
+          <label>WhatsApp
+            <input type="tel" id="pedTel" placeholder="11 99999-9999">
+          </label>
+          <label>Serviço
+            <select id="pedServico">
+              <option>Banho e Tosa</option>
+              <option>Só Banho</option>
+              <option>Hidratação</option>
+              <option>Tosa Higiênica</option>
+              <option>Só Corte de Unha</option>
+            </select>
+          </label>
+          <label>Data
+            <input type="date" id="pedData" required>
+          </label>
+          <label>Hora
+            <input type="time" id="pedHora" required>
+          </label>
+          <button type="submit" class="btn-add">+ Registrar pedido</button>
+        </form>
+        <div class="tabela-wrap">
+          <table>
+            <thead><tr><th>Data</th><th>Hora</th><th>Tutor / Pet</th><th>Serviço</th><th>Valor</th><th>Status</th><th></th></tr></thead>
+            <tbody id="tbodyPedidos"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <h3 style="font-family:var(--fonte-script);font-size:1.6rem;color:var(--roxo);margin:1.4rem 0 .8rem">Registro de banhos feitos</h3>
       <form class="form-linha" id="formBanho">
         <label>Tutor / Pet
           <input type="text" id="banCliente" placeholder="ex: Maria — Totó" required>
@@ -242,13 +315,18 @@
           <label><input type="checkbox" value="sex"> Sexta</label>
           <label><input type="checkbox" value="sab"> Sábado</label>
         </div>
+        <label class="obs-vet">Horários de consulta (separados por vírgula)
+          <input type="text" id="horariosVet" placeholder="ex: 10:00, 11:00, 14:00, 15:00">
+        </label>
         <label class="obs-vet">Observação (ex: horários, quinzenal...)
-          <input type="text" id="obsVet" placeholder="ex: das 14h às 18h">
+          <input type="text" id="obsVet" placeholder="ex: das 10h às 16h">
         </label>
         <button class="btn-add" id="btnSalvarDias">Salvar dias</button>
         <span class="salvo-ok" id="diasSalvos" hidden>&#10003; salvo!</span>
+        <button class="btn-add secundario" id="btnPublicarAgendaVet" style="margin-left:.4rem">&#128228; Publicar agenda no site</button>
+        <p class="ajuda" style="margin-top:.6rem">Salvar dias guarda aqui no painel. <strong>Publicar</strong> copia a configuração e abre o GitHub — cole lá e dê Commit. O link dos clientes nunca muda.</p>
         <div class="link-agenda">
-          <label>&#128279; Link de agendamento para enviar aos clientes (só mostra os dias marcados):</label>
+          <label>&#128279; Link fixo de agendamento de consultas:</label>
           <div class="link-agenda-row">
             <input type="text" id="linkAgenda" readonly>
             <button type="button" class="btn-add secundario" id="btnCopiarLink">Copiar</button>

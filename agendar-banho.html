@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agendar Banho &amp; Tosa — Xodozinho Pet Shop</title>
+<link rel="icon" href="logo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --roxo-escuro:#3B1655; --roxo:#4A1D6B; --roxo-suave:#7A4BA8;
+  --ouro:#D4A93C; --ouro-claro:#E8C86A; --ouro-escuro:#A87F1F;
+  --creme:#F7F1E3; --cinza:#EDE7F3; --verde:#2E9E5B; --vermelho:#C0392B;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Nunito Sans',sans-serif;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:1.6rem 1.2rem;
+  background-color:var(--roxo);
+  background-image:
+    linear-gradient(135deg, rgba(255,255,255,.05) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.05) 50%, rgba(255,255,255,.05) 75%, transparent 75%),
+    linear-gradient(45deg, rgba(0,0,0,.10) 25%, transparent 25%, transparent 50%, rgba(0,0,0,.10) 50%, rgba(0,0,0,.10) 75%, transparent 75%);
+  background-size:56px 56px;
+}
+.cartao{background:#fff;border-radius:22px;padding:2.2rem 1.8rem;width:100%;max-width:520px;box-shadow:0 20px 60px rgba(0,0,0,.4);border-top:5px solid var(--ouro)}
+.cartao-logo{width:78px;height:78px;border-radius:50%;border:3px solid var(--ouro);margin:0 auto .5rem;display:block;object-fit:cover}
+h1{font-family:'Dancing Script',cursive;font-size:2.3rem;color:var(--roxo);text-align:center;line-height:1}
+.sub{letter-spacing:.25em;font-size:.66rem;color:var(--ouro-escuro);font-weight:800;text-align:center;margin:.3rem 0 1.2rem}
+.aviso{background:var(--creme);border-left:4px solid var(--ouro);border-radius:10px;padding:.8rem 1rem;font-size:.88rem;color:var(--roxo);margin-bottom:1.2rem}
+.aviso strong{display:block;margin-bottom:.2rem}
+.aviso-tosa{background:#FCF3D9;border-left-color:var(--ouro-escuro)}
+label{display:block;font-weight:800;font-size:.85rem;color:var(--roxo);margin-bottom:.9rem}
+input,select{width:100%;margin-top:.3rem;padding:.68rem .9rem;border:1.5px solid var(--cinza);border-radius:10px;font-family:inherit;font-size:.95rem;background:#fff}
+input:focus,select:focus{outline:none;border-color:var(--roxo-suave)}
+.duas{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+.tres{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.8rem}
+.erro-data{display:none;color:var(--vermelho);font-size:.82rem;font-weight:700;margin-top:.3rem}
+.erro-data.visivel{display:block}
+.foto-label input[type="file"]{padding:.5rem;background:var(--creme);cursor:pointer}
+.foto-ok{display:none;color:var(--verde);font-size:.82rem;font-weight:700;margin-top:.3rem}
+.foto-ok.visivel{display:block}
+.btn{width:100%;padding:.9rem;border:none;border-radius:999px;font-weight:800;font-size:1rem;cursor:pointer;color:#fff;background:#25D366;box-shadow:0 6px 16px rgba(37,211,102,.4);transition:transform .2s;font-family:inherit;margin-top:.4rem}
+.btn:hover{transform:translateY(-2px)}
+.voltar{display:block;text-align:center;margin-top:1.1rem;color:var(--roxo-suave);font-size:.88rem;font-weight:700;text-decoration:none}
+.voltar:hover{text-decoration:underline}
+.nota{font-size:.78rem;color:#8a7a9e;text-align:center;margin-top:.9rem}
+@media (max-width:480px){.duas,.tres{grid-template-columns:1fr}}
+
+/* Calendário */
+.calendario{border:1.5px solid var(--cinza);border-radius:14px;padding:.8rem;margin-top:.3rem;background:#fff}
+.cal-topo{display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem}
+.cal-mes{font-weight:800;color:var(--roxo);font-size:.95rem}
+.cal-nav{border:none;background:var(--creme);color:var(--roxo);font-size:1.2rem;width:32px;height:32px;border-radius:8px;cursor:pointer;font-weight:800}
+.cal-nav:disabled{opacity:.35;cursor:default}
+.cal-grade{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
+.cal-cab span{font-size:.7rem;font-weight:800;color:#8a7a9e;padding:.2rem 0}
+.cal-dia{border:none;background:var(--creme);color:var(--roxo);font-weight:800;border-radius:8px;padding:.45rem 0;cursor:pointer;font-family:inherit;font-size:.88rem}
+.cal-dia:hover{background:var(--ouro-claro)}
+.cal-sel{background:var(--roxo)!important;color:var(--ouro-claro)}
+.cal-off{color:#cfc6da;padding:.45rem 0;font-size:.88rem}
+.data-escolhida{font-size:.85rem;font-weight:800;color:var(--verde);margin-top:.4rem;display:none}
+.data-escolhida.visivel{display:block}
+</style>
+</head>
+<body>
+
+<div class="cartao">
+  <img src="logo.jpg" alt="Xodozinho" class="cartao-logo">
+  <h1>Agendar Banho &amp; Tosa</h1>
+  <p class="sub">XODOZINHO PET SHOP</p>
+
+  <div class="aviso">
+    <strong>&#128197; Dias com agenda aberta:</strong>
+    <span id="diasTexto"></span>
+    <span id="obsTexto"></span>
+  </div>
+  <div class="aviso aviso-tosa">
+    &#9986;&#65039; <strong>Sobre a tosa:</strong> os agendamentos de tosa acontecem, em sua maioria, durante a semana (terça a sexta). Às segundas-feiras o pet shop é fechado. &#128062;
+  </div>
+
+  <form id="formBanho">
+    <label>Seu nome
+      <input type="text" id="bNome" placeholder="ex: Maria" required>
+    </label>
+    <div class="duas">
+      <label>Nome do pet
+        <input type="text" id="bPet" placeholder="ex: Totó" required>
+      </label>
+      <label>Raça
+        <input type="text" id="bRaca" placeholder="ex: Poodle" required>
+      </label>
+    </div>
+    <div class="tres">
+      <label>Porte
+        <select id="bPorte" required>
+          <option value="">Selecione...</option>
+          <option>Pequeno</option>
+          <option>Médio</option>
+          <option>Grande</option>
+        </select>
+      </label>
+      <label>Peso (kg)
+        <input type="number" id="bPeso" step="0.1" min="0.1" placeholder="ex: 6,5" required>
+      </label>
+      <label>Idade
+        <input type="text" id="bIdade" placeholder="ex: 3 anos" required>
+      </label>
+    </div>
+    <label>Serviço desejado
+      <select id="bServico" required>
+        <option value="">Selecione...</option>
+        <option value="Banho e Tosa" data-tosa="1">Banho + Tosa</option>
+        <option value="Só Banho">Só Banho</option>
+        <option value="Hidratação">Hidratação</option>
+        <option value="Tosa Higiênica" data-tosa="1">Tosa Higiênica</option>
+        <option value="Só Corte de Unha">Só Corte de Unha</option>
+      </select>
+    </label>
+    <label>Data desejada — o calendário mostra só os dias com agenda para o serviço escolhido:
+      <div class="calendario" id="calBanho"></div>
+      <input type="hidden" id="bData" required>
+      <span class="data-escolhida" id="dataEscolhida"></span>
+      <span class="erro-data" id="erroData">Escolha uma data disponível no calendário. &#128062;</span>
+    </label>
+    <label>Horário desejado
+      <select id="bHora" required>
+        <option value="">Selecione...</option>
+      </select>
+    </label>
+    <label>O pet tem algum problema de saúde?
+      <input type="text" id="bSaude" placeholder="ex: não / alergia, cardíaco..." required>
+    </label>
+    <div class="duas">
+      <label>Vacinas em dia?
+        <select id="bVacinas" required>
+          <option value="">Selecione...</option>
+          <option>Sim</option>
+          <option>Não</option>
+          <option>Não sei</option>
+        </select>
+      </label>
+      <label>Tem pulgas ou carrapatos?
+        <select id="bPulgas" required>
+          <option value="">Selecione...</option>
+          <option>Não</option>
+          <option>Sim, pulgas</option>
+          <option>Sim, carrapatos</option>
+          <option>Sim, os dois</option>
+        </select>
+      </label>
+    </div>
+    <label class="foto-label">Foto do pet (obrigatória) &#128247;
+      <input type="file" id="bFoto" accept="image/*" required>
+      <span class="foto-ok" id="fotoOk">&#10003; Foto selecionada! Você vai anexá-la na conversa do WhatsApp ao enviar o pedido.</span>
+    </label>
+    <button type="submit" class="btn">&#128172; Enviar pedido pelo WhatsApp</button>
+  </form>
+
+  <p class="nota">Seu pedido vai para o WhatsApp do Xodozinho. A Maisa analisa a ficha e a foto, confirma a agenda e responde com o valor. O horário só fica garantido após a aprovação. &#128156;</p>
+  <a class="voltar" href="index.html">&#8592; Voltar ao site</a>
+</div>
+
+<script src="config.js"></script>
+<script src="agenda.js"></script>
+<script>
+// ===== Agendamento de banho — Xodozinho Pet Shop =====
+const SHOP_WHATS = '5511981944112';
+const NOMES = { seg:'Segunda', ter:'Terça', qua:'Quarta', qui:'Quinta', sex:'Sexta', sab:'Sábado', dom:'Domingo' };
+
+const cfgB = (window.XODO_CONFIG && window.XODO_CONFIG.banho) || {};
+const cfgT = (window.XODO_CONFIG && window.XODO_CONFIG.tosa) || {};
+const diasBanho = (cfgB.dias && cfgB.dias.length) ? cfgB.dias : ['ter','qua','qui','sex','sab'];
+const diasTosa = (cfgT.dias && cfgT.dias.length) ? cfgT.dias : ['ter','qua','qui','sex'];
+const horarios = (cfgB.horarios && cfgB.horarios.length) ? cfgB.horarios : ['09:00','10:00','11:00','14:00','15:00','16:00'];
+const obs = cfgB.obs || '';
+
+document.getElementById('diasTexto').textContent =
+  'Banho: ' + diasBanho.map(d => NOMES[d]).join(', ') +
+  ' \u00b7 Tosa: ' + diasTosa.map(d => NOMES[d]).join(', ');
+if (obs) document.getElementById('obsTexto').textContent = ' \u2014 ' + obs;
+
+document.getElementById('bHora').innerHTML =
+  '<option value="">Selecione...</option>' + horarios.map(x => `<option>${x}</option>`).join('');
+
+const campoData = document.getElementById('bData');
+const campoServico = document.getElementById('bServico');
+
+function servicoTemTosa() {
+  const opt = campoServico.selectedOptions[0];
+  return !!(opt && opt.dataset.tosa);
+}
+
+const cal = criarCalendario('calBanho', 'bData', () => servicoTemTosa() ? diasTosa : diasBanho);
+
+// Ao trocar o serviço, o calendário recarrega com os dias corretos
+campoServico.addEventListener('change', () => {
+  cal.atualizar();
+  document.getElementById('dataEscolhida').classList.remove('visivel');
+});
+
+campoData.addEventListener('change', () => {
+  if (!campoData.value) return;
+  document.getElementById('erroData').classList.remove('visivel');
+  const [a, m, d] = campoData.value.split('-');
+  const el = document.getElementById('dataEscolhida');
+  el.textContent = `\u2713 Data escolhida: ${d}/${m}/${a}`;
+  el.classList.add('visivel');
+});
+
+document.getElementById('bFoto').addEventListener('change', (e) => {
+  document.getElementById('fotoOk').classList.toggle('visivel', e.target.files.length > 0);
+});
+
+document.getElementById('formBanho').addEventListener('submit', (e) => {
+  e.preventDefault();
+  if (!campoData.value) {
+    document.getElementById('erroData').classList.add('visivel');
+    return;
+  }
+  const v = id => document.getElementById(id).value.trim();
+  const [a, m, d] = campoData.value.split('-');
+  const nomeFoto = document.getElementById('bFoto').files[0]?.name || '';
+  const texto =
+    `\u{1F6C1} *Pedido de agendamento \u2014 Xodozinho Pet Shop*\n\n` +
+    `Tutor: ${v('bNome')}\n` +
+    `Pet: ${v('bPet')} (${v('bRaca')})\n` +
+    `Porte: ${v('bPorte')} \u00b7 Peso: ${v('bPeso')} kg \u00b7 Idade: ${v('bIdade')}\n` +
+    `Servi\u00e7o: ${v('bServico')}\n` +
+    `Data: ${d}/${m}/${a} \u00e0s ${v('bHora')}\n` +
+    `Problema de sa\u00fade: ${v('bSaude')}\n` +
+    `Vacinas em dia: ${v('bVacinas')}\n` +
+    `Pulgas/carrapatos: ${v('bPulgas')}\n\n` +
+    `\u{1F4F7} *Vou anexar a foto do pet aqui na conversa* (${nomeFoto})\n\n` +
+    `Aguardo a confirma\u00e7\u00e3o e o valor! \u{1F49C}`;
+  window.open(`https://wa.me/${SHOP_WHATS}?text=${encodeURIComponent(texto)}`, '_blank');
+  alert('Quase l\u00e1! O WhatsApp vai abrir com sua ficha pronta.\n\nIMPORTANTE: anexe a foto do seu pet na conversa antes de enviar. \u{1F4F7}\u{1F43E}');
+});
+</script>
+</body>
+</html>

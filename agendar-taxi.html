@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Táxi Dog — Xodozinho Pet Shop</title>
+<link rel="icon" href="logo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --roxo-escuro:#3B1655; --roxo:#4A1D6B; --roxo-suave:#7A4BA8;
+  --ouro:#D4A93C; --ouro-claro:#E8C86A; --ouro-escuro:#A87F1F;
+  --creme:#F7F1E3; --cinza:#EDE7F3; --verde:#2E9E5B; --vermelho:#C0392B;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Nunito Sans',sans-serif;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:1.6rem 1.2rem;
+  background-color:var(--roxo);
+  background-image:
+    linear-gradient(135deg, rgba(255,255,255,.05) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.05) 50%, rgba(255,255,255,.05) 75%, transparent 75%),
+    linear-gradient(45deg, rgba(0,0,0,.10) 25%, transparent 25%, transparent 50%, rgba(0,0,0,.10) 50%, rgba(0,0,0,.10) 75%, transparent 75%);
+  background-size:56px 56px;
+}
+.cartao{background:#fff;border-radius:22px;padding:2.2rem 1.8rem;width:100%;max-width:500px;box-shadow:0 20px 60px rgba(0,0,0,.4);border-top:5px solid var(--ouro)}
+.cartao-logo{width:78px;height:78px;border-radius:50%;border:3px solid var(--ouro);margin:0 auto .5rem;display:block;object-fit:cover}
+h1{font-family:'Dancing Script',cursive;font-size:2.3rem;color:var(--roxo);text-align:center;line-height:1}
+.sub{letter-spacing:.25em;font-size:.66rem;color:var(--ouro-escuro);font-weight:800;text-align:center;margin:.3rem 0 1.2rem}
+label{display:block;font-weight:800;font-size:.85rem;color:var(--roxo);margin-bottom:.9rem}
+input,select{width:100%;margin-top:.3rem;padding:.68rem .9rem;border:1.5px solid var(--cinza);border-radius:10px;font-family:inherit;font-size:.95rem;background:#fff}
+input:focus,select:focus{outline:none;border-color:var(--roxo-suave)}
+input[readonly]{background:var(--creme);color:#6b5a80}
+.duas{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+.cep-row{display:flex;gap:.5rem;margin-top:.3rem}
+.cep-row input{margin-top:0;flex:1}
+.btn-cep{border:none;background:var(--roxo);color:var(--ouro-claro);font-weight:800;padding:0 1.2rem;border-radius:10px;cursor:pointer;font-family:inherit;white-space:nowrap}
+.btn-cep:hover{background:var(--roxo-escuro)}
+.cep-erro{display:none;color:var(--vermelho);font-size:.82rem;font-weight:700;margin-top:.3rem}
+.cep-erro.visivel{display:block}
+.btn{width:100%;padding:.9rem;border:none;border-radius:999px;font-weight:800;font-size:1rem;cursor:pointer;color:#fff;background:#25D366;box-shadow:0 6px 16px rgba(37,211,102,.4);transition:transform .2s;font-family:inherit;margin-top:.4rem}
+.btn:hover{transform:translateY(-2px)}
+.voltar{display:block;text-align:center;margin-top:1.1rem;color:var(--roxo-suave);font-size:.88rem;font-weight:700;text-decoration:none}
+.voltar:hover{text-decoration:underline}
+.nota{font-size:.78rem;color:#8a7a9e;text-align:center;margin-top:.9rem}
+@media (max-width:480px){.duas{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="cartao">
+  <img src="logo.jpg" alt="Xodozinho" class="cartao-logo">
+  <h1>Táxi Dog</h1>
+  <p class="sub">BUSCAMOS E LEVAMOS SEU PET — XODOZINHO</p>
+
+  <form id="formTaxi">
+    <div class="duas">
+      <label>Seu nome
+        <input type="text" id="tNome" placeholder="ex: Maria" required>
+      </label>
+      <label>Nome do pet
+        <input type="text" id="tPet" placeholder="ex: Totó" required>
+      </label>
+    </div>
+    <label>CEP
+      <div class="cep-row">
+        <input type="text" id="tCep" placeholder="00000-000" maxlength="9" inputmode="numeric" required>
+        <button type="button" class="btn-cep" id="btnBuscarCep">&#128269; Buscar</button>
+      </div>
+      <span class="cep-erro" id="cepErro">CEP não encontrado — confira os números.</span>
+    </label>
+    <label>Rua
+      <input type="text" id="tRua" placeholder="preenchido pelo CEP" readonly required>
+    </label>
+    <label>Bairro / Cidade
+      <input type="text" id="tBairro" placeholder="preenchido pelo CEP" readonly required>
+    </label>
+    <div class="duas">
+      <label>Número
+        <input type="text" id="tNumero" placeholder="ex: 617" required>
+      </label>
+      <label>Complemento
+        <input type="text" id="tComplemento" placeholder="ex: casa 2, apto 31...">
+      </label>
+    </div>
+    <div class="duas">
+      <label>Trajeto
+        <select id="tTrajeto" required>
+          <option value="">Selecione...</option>
+          <option>Buscar e levar de volta (ida e volta)</option>
+          <option>Só buscar em casa</option>
+          <option>Só levar de volta</option>
+        </select>
+      </label>
+      <label>Data desejada
+        <input type="date" id="tData" required>
+      </label>
+    </div>
+    <label>Observação
+      <input type="text" id="tObs" placeholder="ex: portão azul, interfone 12...">
+    </label>
+    <button type="submit" class="btn">&#128172; Solicitar pelo WhatsApp</button>
+  </form>
+
+  <p class="nota">Seu pedido vai para o WhatsApp do Xodozinho, que confirma horário e valor da busca conforme a região. &#128062;</p>
+  <a class="voltar" href="index.html">&#8592; Voltar ao site</a>
+</div>
+
+<script>
+// ===== Táxi Dog — Xodozinho Pet Shop =====
+const SHOP_WHATS = '5511981944112';
+const campoCep = document.getElementById('tCep');
+
+// Máscara simples do CEP
+campoCep.addEventListener('input', () => {
+  let v = campoCep.value.replace(/\D/g, '').slice(0, 8);
+  if (v.length > 5) v = v.slice(0, 5) + '-' + v.slice(5);
+  campoCep.value = v;
+});
+
+async function buscarCep() {
+  const cep = campoCep.value.replace(/\D/g, '');
+  const erro = document.getElementById('cepErro');
+  erro.classList.remove('visivel');
+  if (cep.length !== 8) { erro.classList.add('visivel'); return; }
+  try {
+    const resp = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+    const dados = await resp.json();
+    if (dados.erro) { erro.classList.add('visivel'); return; }
+    document.getElementById('tRua').value = dados.logradouro || '';
+    document.getElementById('tBairro').value =
+      [dados.bairro, dados.localidade + (dados.uf ? ' - ' + dados.uf : '')].filter(Boolean).join(', ');
+    document.getElementById('tNumero').focus();
+  } catch (e) {
+    erro.textContent = 'Não foi possível buscar agora — preencha o endereço manualmente.';
+    erro.classList.add('visivel');
+    document.getElementById('tRua').readOnly = false;
+    document.getElementById('tBairro').readOnly = false;
+  }
+}
+document.getElementById('btnBuscarCep').addEventListener('click', buscarCep);
+campoCep.addEventListener('blur', () => { if (campoCep.value.replace(/\D/g, '').length === 8) buscarCep(); });
+
+// Data mínima = hoje
+const hoje = new Date();
+document.getElementById('tData').min =
+  `${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,'0')}-${String(hoje.getDate()).padStart(2,'0')}`;
+
+document.getElementById('formTaxi').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const v = id => document.getElementById(id).value.trim();
+  const [a, m, d] = v('tData').split('-');
+  const texto =
+    `\u{1F697} *Pedido de T\u00e1xi Dog \u2014 Xodozinho Pet Shop*\n\n` +
+    `Tutor: ${v('tNome')}\n` +
+    `Pet: ${v('tPet')}\n` +
+    `Endere\u00e7o: ${v('tRua')}, n\u00ba ${v('tNumero')}` +
+    (v('tComplemento') ? ` (${v('tComplemento')})` : '') + `\n` +
+    `Bairro: ${v('tBairro')}\n` +
+    `CEP: ${v('tCep')}\n` +
+    `Trajeto: ${v('tTrajeto')}\n` +
+    `Data: ${d}/${m}/${a}\n` +
+    (v('tObs') ? `Obs: ${v('tObs')}\n` : '') +
+    `\nAguardo a confirma\u00e7\u00e3o! \u{1F49C}`;
+  window.open(`https://wa.me/${SHOP_WHATS}?text=${encodeURIComponent(texto)}`, '_blank');
+});
+</script>
+</body>
+</html>
