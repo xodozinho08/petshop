@@ -156,3 +156,11 @@ tbody tr:hover{background:#faf6ff}
   .painel-grid-2{grid-template-columns:1fr}
   .abas{top:52px}
 }
+
+/* ---------- Consultas veterinárias ---------- */
+.dias-semana{display:flex;flex-wrap:wrap;gap:.6rem;margin-bottom:.9rem}
+.dias-semana label{display:flex;align-items:center;gap:.35rem;background:var(--creme);border:1.5px solid var(--cinza);border-radius:999px;padding:.4rem .9rem;font-weight:700;font-size:.88rem;color:var(--roxo);cursor:pointer}
+.dias-semana input{accent-color:var(--roxo)}
+.obs-vet{display:block;font-size:.8rem;font-weight:800;color:var(--roxo);margin-bottom:.9rem}
+.obs-vet input{display:block;width:100%;max-width:420px;margin-top:.3rem;padding:.6rem .8rem;border:1.5px solid var(--cinza);border-radius:10px}
+.salvo-ok{color:var(--verde);font-weight:800;margin-left:.6rem}

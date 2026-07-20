@@ -8,7 +8,11 @@
 // sem servidor). Não guarde informações sigilosas de terceiros aqui.
 const ADMIN_EMAIL = 'maisapimentelbarros1401@gmail.com';
 const ADMIN_SENHA = '123456';
+// Login da veterinária (acesso só à aba Consultas) — troque aqui se quiser:
+const VET_EMAIL = 'veterinaria@xodozinho.com';
+const VET_SENHA = 'vet123';
 const CHAVE_SESSAO = 'xodozinho_logado';
+const CHAVE_PAPEL = 'xodozinho_papel';
 const CHAVE_DADOS = 'xodozinho_dados';
 
 const telaLogin = document.getElementById('telaLogin');
@@ -18,11 +22,29 @@ function estaLogado() {
   return sessionStorage.getItem(CHAVE_SESSAO) === 'sim';
 }
 
+function papelAtual() {
+  return sessionStorage.getItem(CHAVE_PAPEL) || 'admin';
+}
+
+function aplicarPapel() {
+  if (papelAtual() !== 'vet') return;
+  // Vet só vê a aba Consultas
+  document.querySelectorAll('.aba').forEach(a => {
+    const ehConsultas = a.dataset.aba === 'consultas';
+    a.style.display = ehConsultas ? '' : 'none';
+    a.classList.toggle('ativa', ehConsultas);
+  });
+  document.querySelectorAll('.painel-secao').forEach(s => {
+    s.classList.toggle('ativa', s.id === 'sec-consultas');
+  });
+}
+
 function mostrarPainel() {
   telaLogin.hidden = true;
   telaLogin.style.display = 'none';
   painel.hidden = false;
   renderizarTudo();
+  aplicarPapel();
 }
 
 document.getElementById('formLogin').addEventListener('submit', (e) => {
@@ -32,6 +54,12 @@ document.getElementById('formLogin').addEventListener('submit', (e) => {
   const erro = document.getElementById('loginErro');
   if (email === ADMIN_EMAIL && senha === ADMIN_SENHA) {
     sessionStorage.setItem(CHAVE_SESSAO, 'sim');
+    sessionStorage.setItem(CHAVE_PAPEL, 'admin');
+    erro.classList.remove('visivel');
+    mostrarPainel();
+  } else if (email === VET_EMAIL && senha === VET_SENHA) {
+    sessionStorage.setItem(CHAVE_SESSAO, 'sim');
+    sessionStorage.setItem(CHAVE_PAPEL, 'vet');
     erro.classList.remove('visivel');
     mostrarPainel();
   } else {
@@ -52,7 +80,7 @@ function carregarDados() {
     const bruto = localStorage.getItem(CHAVE_DADOS);
     if (bruto) return JSON.parse(bruto);
   } catch (e) { console.error('Erro ao ler dados', e); }
-  return { entradas: [], saidas: [], boletos: [], clientes: [], pacotes: [] };
+  return { entradas: [], saidas: [], boletos: [], clientes: [], pacotes: [], consultas: [], diasVet: { dias: [], obs: '' } };
 }
 
 let dados = carregarDados();
@@ -337,6 +365,76 @@ function renderizarPacotes() {
   }).join('');
 }
 
+// ---------- CONSULTAS VETERINÁRIAS ----------
+const formConsulta = document.getElementById('formConsulta');
+document.getElementById('conData').value = hojeISO();
+
+// Salvar dias de atendimento
+document.getElementById('btnSalvarDias').addEventListener('click', () => {
+  const marcados = [...document.querySelectorAll('#diasSemana input:checked')].map(c => c.value);
+  dados.diasVet = { dias: marcados, obs: document.getElementById('obsVet').value.trim() };
+  salvar();
+  const ok = document.getElementById('diasSalvos');
+  ok.hidden = false;
+  setTimeout(() => { ok.hidden = true; }, 2500);
+});
+
+formConsulta.addEventListener('submit', (e) => {
+  e.preventDefault();
+  dados.consultas.push({
+    id: novoId(),
+    cliente: document.getElementById('conCliente').value.trim(),
+    tel: document.getElementById('conTel').value.trim(),
+    data: document.getElementById('conData').value,
+    hora: document.getElementById('conHora').value,
+    motivo: document.getElementById('conMotivo').value.trim()
+  });
+  salvar();
+  formConsulta.reset();
+  document.getElementById('conData').value = hojeISO();
+  renderizarConsultas();
+});
+
+function renderizarConsultas() {
+  if (!dados.consultas) dados.consultas = [];
+  if (!dados.diasVet) dados.diasVet = { dias: [], obs: '' };
+
+  // Preencher dias salvos
+  document.querySelectorAll('#diasSemana input').forEach(c => {
+    c.checked = dados.diasVet.dias.includes(c.value);
+  });
+  document.getElementById('obsVet').value = dados.diasVet.obs || '';
+
+  const tbody = document.getElementById('tbodyConsultas');
+  const hoje = hojeISO();
+  const lista = [...dados.consultas].sort((a, b) =>
+    (a.data + a.hora).localeCompare(b.data + b.hora));
+
+  const futuras = lista.filter(c => c.data >= hoje).length;
+  document.getElementById('totalConsultas').textContent = futuras + ' agendadas';
+
+  if (!lista.length) {
+    tbody.innerHTML = '<tr class="linha-vazia"><td colspan="6">Nenhuma consulta agendada ainda. &#129658;</td></tr>';
+    return;
+  }
+  tbody.innerHTML = lista.map(c => {
+    const numeroLimpo = (c.tel || '').replace(/\D/g, '');
+    const zap = numeroLimpo
+      ? `<a class="link-zap" target="_blank" rel="noopener" href="https://wa.me/55${numeroLimpo}">${c.tel}</a>`
+      : '—';
+    const passada = c.data < hoje;
+    return `
+    <tr${passada ? ' style="opacity:.55"' : ''}>
+      <td><strong>${dataBR(c.data)}</strong></td>
+      <td>${c.hora}</td>
+      <td>${c.cliente}</td>
+      <td>${zap}</td>
+      <td>${c.motivo || '—'}</td>
+      <td><button class="acao" data-del-consulta="${c.id}" title="Excluir">&#10060;</button></td>
+    </tr>`;
+  }).join('');
+}
+
 // ---------- RESUMO (DASHBOARD) ----------
 document.getElementById('mesResumo').value = mesAtual();
 document.getElementById('mesResumo').addEventListener('change', renderizarResumo);
@@ -439,6 +537,8 @@ document.querySelector('.conteudo').addEventListener('click', (e) => {
     if (p && p.usadas < p.sessoes) p.usadas++;
   } else if (d.delPacote && confirm('Excluir este pacote?')) {
     dados.pacotes = dados.pacotes.filter(x => x.id !== d.delPacote);
+  } else if (d.delConsulta && confirm('Excluir esta consulta?')) {
+    dados.consultas = dados.consultas.filter(x => x.id !== d.delConsulta);
   } else {
     return; // nenhum botão de ação conhecido
   }
@@ -478,7 +578,9 @@ document.getElementById('inputImportar').addEventListener('change', (e) => {
           saidas: novo.saidas || [],
           boletos: novo.boletos || [],
           clientes: novo.clientes || [],
-          pacotes: novo.pacotes || []
+          pacotes: novo.pacotes || [],
+          consultas: novo.consultas || [],
+          diasVet: novo.diasVet || { dias: [], obs: '' }
         };
         salvar();
         renderizarTudo();
@@ -495,7 +597,7 @@ document.getElementById('inputImportar').addEventListener('change', (e) => {
 document.getElementById('btnLimparTudo').addEventListener('click', () => {
   if (confirm('Tem certeza? TODOS os lançamentos, clientes e pacotes serão apagados.') &&
       confirm('Última confirmação: essa ação não pode ser desfeita. Baixou o backup?')) {
-    dados = { entradas: [], saidas: [], boletos: [], clientes: [], pacotes: [] };
+    dados = { entradas: [], saidas: [], boletos: [], clientes: [], pacotes: [], consultas: [], diasVet: { dias: [], obs: '' } };
     salvar();
     renderizarTudo();
   }
@@ -518,5 +620,6 @@ function renderizarTudo() {
   renderizarBoletos();
   renderizarClientes();
   renderizarPacotes();
+  renderizarConsultas();
   renderizarFechamentos();
 }

@@ -52,6 +52,7 @@
     <button class="aba" data-aba="entradas">&#128181; Entradas</button>
     <button class="aba" data-aba="saidas">&#128184; Saídas</button>
     <button class="aba" data-aba="boletos">&#129534; Boletos</button>
+    <button class="aba" data-aba="consultas">&#129658; Consultas</button>
     <button class="aba" data-aba="clientes">&#128062; Clientes</button>
     <button class="aba" data-aba="pacotes">&#127873; Pacotes</button>
     <button class="aba" data-aba="fechamentos">&#128197; Fechamentos</button>
@@ -183,6 +184,58 @@
         <table>
           <thead><tr><th>Descrição</th><th>Status</th><th>Valor</th><th>Vencimento</th><th></th></tr></thead>
           <tbody id="tbodyBoletos"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== CONSULTAS VETERINÁRIAS ===== -->
+    <section class="painel-secao" id="sec-consultas">
+      <div class="secao-cab">
+        <h2>Consultas veterinárias</h2>
+        <span class="total-pill" id="totalConsultas">0 agendadas</span>
+      </div>
+
+      <div class="bloco" style="margin-bottom:1.2rem">
+        <h3>&#128197; Dias de atendimento da vet</h3>
+        <p class="ajuda">Marque os dias da semana em que há atendimento. Isso serve de referência na hora de agendar.</p>
+        <div class="dias-semana" id="diasSemana">
+          <label><input type="checkbox" value="seg"> Segunda</label>
+          <label><input type="checkbox" value="ter"> Terça</label>
+          <label><input type="checkbox" value="qua"> Quarta</label>
+          <label><input type="checkbox" value="qui"> Quinta</label>
+          <label><input type="checkbox" value="sex"> Sexta</label>
+          <label><input type="checkbox" value="sab"> Sábado</label>
+        </div>
+        <label class="obs-vet">Observação (ex: horários, quinzenal...)
+          <input type="text" id="obsVet" placeholder="ex: das 14h às 18h">
+        </label>
+        <button class="btn-add" id="btnSalvarDias">Salvar dias</button>
+        <span class="salvo-ok" id="diasSalvos" hidden>&#10003; salvo!</span>
+      </div>
+
+      <form class="form-linha" id="formConsulta">
+        <label>Tutor / Pet
+          <input type="text" id="conCliente" placeholder="ex: Maria — Totó" required>
+        </label>
+        <label>WhatsApp do tutor
+          <input type="tel" id="conTel" placeholder="11 99999-9999">
+        </label>
+        <label>Data
+          <input type="date" id="conData" required>
+        </label>
+        <label>Hora
+          <input type="time" id="conHora" required>
+        </label>
+        <label>Motivo
+          <input type="text" id="conMotivo" placeholder="ex: vacina, retorno...">
+        </label>
+        <button type="submit" class="btn-add">+ Agendar</button>
+      </form>
+
+      <div class="tabela-wrap">
+        <table>
+          <thead><tr><th>Data</th><th>Hora</th><th>Tutor / Pet</th><th>WhatsApp</th><th>Motivo</th><th></th></tr></thead>
+          <tbody id="tbodyConsultas"></tbody>
         </table>
       </div>
     </section>
